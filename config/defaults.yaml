@@ -1,0 +1,47 @@
+# Google Drive Access Manager - Default Configuration
+
+app_name: "Google Drive Access Manager"
+version: "2.0.0"
+debug_mode: false
+
+# Google API Configuration
+google_api:
+  credentials_path: "credentials.json"
+  token_path: "token.json"
+  service_account_path: null
+  admin_email: null
+  page_size: 100
+  rate_limit_delay: 0.1
+  max_retries: 3
+  timeout_seconds: 30
+
+# Cache Configuration
+cache:
+  enabled: true
+  cache_dir: "cache"
+  default_ttl_days: 7
+  max_size_mb: 100
+  compression_enabled: true
+
+# Reporting Configuration
+reporting:
+  output_dir: "reports"
+  default_formats:
+    - csv
+    - excel
+  include_metadata: true
+  timestamp_format: "%Y%m%d_%H%M%S"
+  excel_engine: "openpyxl"
+  csv_delimiter: ","
+  json_indent: 2
+
+# Logging Configuration
+logging:
+  enabled: true
+  log_dir: "logs"
+  log_level: "INFO"
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  audit_enabled: true
+  audit_file: "audit.log"
+  max_log_size_mb: 10
+  backup_count: 5

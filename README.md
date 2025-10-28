@@ -1,55 +1,86 @@
-# Employee Offboarding Tool - Google Drive Access Revocation
+# Google Drive Access Manager
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: PEP8](https://img.shields.io/badge/code%20style-PEP8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Architecture: Clean](https://img.shields.io/badge/architecture-Clean-blue.svg)](ARCHITECTURE.md)
+[![SOLID](https://img.shields.io/badge/principles-SOLID-green.svg)](ARCHITECTURE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A Python-based tool for securely revoking Google Drive access and generating comprehensive reports during employee offboarding.
+An enterprise-grade application for managing Google Drive access control with comprehensive audit trails. Refactored from a monolithic script into a Clean Architecture application following SOLID principles and Domain-Driven Design.
 
-## Features
+## 🎯 What's New in v2.0
 
-- **Comprehensive Drive Scanning**: Scans all accessible Google Drive resources (Docs, Sheets, Forms, Sites, etc.)
-- **Intelligent Caching**: Stores Drive data locally for 7 days (configurable), dramatically improving performance
-- **Access Revocation**: Automatically revokes permissions for offboarded employees
-- **Detailed Reporting**: Generates reports in multiple formats (CSV, Excel, JSON)
-- **Interactive CLI**: User-friendly command-line interface with prompts for sensitive data
-- **Dry Run Mode**: Test revocation without making actual changes
-- **Safety Features**: Prevents revoking ownership permissions, detailed error handling
+**Complete architectural transformation:**
+- ✨ **Clean Architecture** - Proper layer separation (Domain, Application, Infrastructure, Presentation)
+- 🎨 **Design Patterns** - Repository, Factory, Strategy, Builder, Observer, Dependency Injection
+- 🏗️ **SOLID Principles** - All five principles rigorously applied
+- 🔒 **Type Safety** - Value Objects eliminate primitive obsession
+- 📊 **Domain-Driven Design** - Rich domain models with business logic
+- 🧪 **Testable** - Complete separation of concerns enables comprehensive testing
+- 📝 **Enterprise-Ready** - Production-grade error handling and audit logging
 
-## Quick Start - One Command Setup! 🚀
+## ✨ Key Features
 
-Get up and running in seconds with automated setup scripts:
+### Core Capabilities
+- **🔍 Comprehensive Scanning** - All Google Drive resources (Docs, Sheets, Slides, Forms, Sites)
+- **🔐 Access Revocation** - Safe permission removal with ownership protection
+- **📊 Multi-Format Reports** - CSV, Excel (XLSX), JSON with rich formatting
+- **💾 Intelligent Caching** - File-based cache with TTL and compression (7-day default)
+- **🎭 Dry Run Mode** - Preview changes before execution
+- **📝 Audit Logging** - Complete operation trail with structured logging
 
-### Mac/Linux
+### Architecture Highlights
+- **🏛️ Clean Architecture** - Domain, Application, Infrastructure, Presentation layers
+- **🎯 SOLID Principles** - Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+- **🎨 Design Patterns** - Repository, Factory, Strategy, Builder, Observer, Value Object, Entity
+- **🔒 Type Safety** - Value Objects (Email, FileId, PermissionRole) replace primitives
+- **💉 Dependency Injection** - ServiceContainer manages all dependencies
+- **🧪 Testable Design** - Interfaces and DI enable comprehensive unit/integration testing
+
+## 🚀 Quick Start
+
+### Installation
+
 ```bash
-bash setup_and_run.sh
+# Clone the repository
+git clone <repository-url>
+cd employee-offboarding
+
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### Windows
-```cmd
-setup_and_run.bat
-```
+### Initial Setup
 
-### Cross-platform (Python)
+1. **Google Cloud Project Setup**:
+   - Create project at [Google Cloud Console](https://console.cloud.google.com/)
+   - Enable Google Drive API
+   - Create OAuth2 credentials (Desktop app)
+   - Download `credentials.json` to project root
+
+2. **Run the Application**:
+
 ```bash
-python3 launcher.py
+# Interactive mode (recommended)
+python -m presentation.main
+
+# Batch mode
+python -m presentation.main --email user@domain.com --mode revoke --formats csv,excel
+
+# Dry run mode
+python -m presentation.main --email user@domain.com --mode revoke --dry-run
 ```
 
-These scripts automatically:
-- ✓ Check Python & pip installation
-- ✓ Create virtual environment
-- ✓ Install all dependencies
-- ✓ Guide you through Google credentials setup
-- ✓ Launch the application
+## 📋 Prerequisites
 
-**That's it!** See the installation section below for manual setup.
-
-## Prerequisites
-
-- Python 3.7 or higher (only requirement - scripts handle the rest!)
-- Google Cloud Project with Drive API enabled
-- OAuth2 credentials for Google APIs (instructions provided during setup)
+- **Python 3.8+** (3.10+ recommended for best type checking)
+- **Google Cloud Project** with Drive API enabled
+- **OAuth2 Credentials** or Service Account (for domain-wide delegation)
+- **Dependencies**: See `requirements.txt` (automatically installed)
 
 ## Manual Setup Instructions
 
@@ -92,25 +123,34 @@ You have three options:
 
 **Option 3**: Paste the credentials JSON content when prompted by the tool
 
-## Usage
+## 💻 Usage
 
-### Run the Tool
+### Command-Line Interface
 
 ```bash
-# Basic run (uses cache)
-python main.py
+# Interactive mode with prompts
+python -m presentation.main
 
-# Force refresh cache
-python main.py --refresh-cache
+# Batch mode (all parameters specified)
+python -m presentation.main \
+  --email user@domain.com \
+  --mode revoke \
+  --formats csv,excel \
+  --dry-run
 
-# Show cache information
-python main.py --cache-info
+# Audit only (no changes)
+python -m presentation.main --email user@domain.com --mode audit
 
-# Run without cache
-python main.py --no-cache
+# Cache management
+python -m presentation.main --refresh-cache  # Force refresh
+python -m presentation.main --no-cache       # Disable cache
+python -m presentation.main --cache-days 14  # Custom TTL
 
-# Show all options
-python main.py --help
+# Custom configuration
+python -m presentation.main --config ./my-config.yaml
+
+# Show help
+python -m presentation.main --help
 ```
 
 ### Interactive Steps
@@ -136,10 +176,10 @@ The tool automatically caches Drive scan results for 7 days:
 
 **Cache Commands:**
 ```bash
-python main.py --cache-info        # Show cache status
-python main.py --refresh-cache     # Force refresh
-python main.py --clear-cache       # Clear cache
-python main.py --cache-days 14     # Custom duration
+python -m presentation.main --cache-info        # Show cache status
+python -m presentation.main --refresh-cache     # Force refresh
+python -m presentation.main --clear-cache       # Clear cache
+python -m presentation.main --cache-days 14     # Custom duration
 ```
 
 ### Example Session
@@ -237,30 +277,84 @@ Combined report generated: reports/combined_report_former-employee_at_example.co
 Thank you for using Employee Offboarding Tool!
 ```
 
-## Project Structure
+## 📁 Project Structure (Clean Architecture)
 
 ```
 employee-offboarding/
-├── main.py                    # Main CLI application
-├── launcher.py                # Cross-platform launcher
-├── setup_and_run.sh           # Mac/Linux automated setup
-├── setup_and_run.bat          # Windows automated setup
-├── auth.py                    # Google API authentication
-├── drive_scanner.py           # Drive resource scanning
-├── permission_manager.py      # Permission management
-├── report_generator.py        # Report generation
-├── cache_manager.py           # Cache management
-├── requirements.txt           # Python dependencies
-├── .gitignore                # Git ignore rules
-├── .env.example              # Environment variables template
-├── README.md                  # This file
-├── LICENSE                    # MIT License
-├── credentials.json          # OAuth2 credentials (not in repo)
-├── token.json                # Auth token (not in repo)
-├── venv/                     # Virtual environment (auto-created)
-├── cache/                    # Cache directory (auto-created)
-└── reports/                  # Generated reports (not in repo)
+├── domain/                          # Domain Layer (Business Logic)
+│   ├── entities/                   # Entities with identity
+│   │   ├── drive_file.py          # Aggregate root for Drive files
+│   │   ├── permission.py          # Permission entity
+│   │   └── user.py                # User entity
+│   ├── value_objects/             # Immutable value objects
+│   │   ├── email.py              # Email with validation
+│   │   ├── file_id.py            # Type-safe file ID
+│   │   ├── permission_id.py      # Type-safe permission ID
+│   │   └── permission_role.py    # Role enum (reader, writer, owner)
+│   ├── services/                  # Domain services
+│   │   ├── permission_service.py # Permission business logic
+│   │   └── file_analysis_service.py # File analysis logic
+│   └── exceptions/                # Domain exceptions
+│       └── access_manager_errors.py # Custom exception hierarchy
+│
+├── application/                     # Application Layer (Use Cases)
+│   ├── dto/                       # Data Transfer Objects
+│   │   ├── access_management_request.py  # Request DTO with Builder
+│   │   └── access_management_result.py   # Result DTO
+│   ├── use_cases/                 # Use case implementations
+│   │   └── manage_user_access_use_case.py # Main orchestration
+│   └── interfaces/                # Repository & service interfaces
+│       ├── repositories.py        # IDriveRepository, IPermissionRepository, ICacheRepository
+│       └── services.py           # IAuthService, IReportService, IProgressObserver
+│
+├── infrastructure/                  # Infrastructure Layer (External Services)
+│   ├── google_api/               # Google API implementations
+│   │   ├── authentication_service.py      # OAuth2 & ServiceAccount (Factory)
+│   │   ├── google_drive_repository.py     # Drive API repository
+│   │   └── google_permission_repository.py # Permission API repository
+│   ├── cache/                    # Caching infrastructure
+│   │   ├── file_cache_repository.py # File-based cache with TTL
+│   │   └── cache_decorators.py   # Caching, logging, retry decorators
+│   ├── reporting/                # Report generation (Strategy pattern)
+│   │   ├── report_generator.py   # Main report service
+│   │   └── formatters/           # Format strategies
+│   │       ├── csv_formatter.py
+│   │       ├── excel_formatter.py
+│   │       └── json_formatter.py
+│   └── logging/                  # Logging infrastructure
+│       └── audit_logger.py       # Structured audit logging
+│
+├── presentation/                    # Presentation Layer (UI)
+│   ├── main.py                   # Application entry point
+│   └── cli/                      # CLI components
+│       ├── cli_presenter.py      # User interaction handler
+│       ├── input_validator.py    # Input validation
+│       └── progress_observer.py  # Progress display (Observer)
+│
+├── config/                         # Configuration Layer
+│   ├── configuration.py          # Multi-source config management
+│   ├── dependency_injection.py   # DI container
+│   └── defaults.yaml            # Default configuration
+│
+├── tests/                          # Test Suite
+│   ├── unit/                    # Unit tests
+│   ├── integration/             # Integration tests
+│   └── e2e/                     # End-to-end tests
+│
+├── requirements.txt              # Python dependencies
+├── .gitignore                   # Git ignore rules
+├── README.md                     # This file
+├── ARCHITECTURE.md              # Architecture documentation
+├── CHANGELOG.md                 # Version history
+└── LICENSE                       # MIT License
 ```
+
+**Key Architecture Concepts:**
+- **Domain Layer**: Pure business logic, no dependencies on other layers
+- **Application Layer**: Orchestrates use cases, depends only on Domain
+- **Infrastructure Layer**: Implements interfaces, depends on Application & Domain
+- **Presentation Layer**: User interface, depends on Application layer
+- **Dependency Rule**: Dependencies point inward (Presentation → Application → Domain)
 
 ## Report Contents
 
@@ -291,13 +385,14 @@ Multiple sheets:
 - **Shared Files**: All files that were shared
 - **Revocation Results**: Detailed revocation outcomes
 
-## Security Considerations
+## 🔒 Security & Best Practices
 
-- **Credentials**: Never commit `credentials.json` or `token.json` to version control
-- **Ownership Protection**: The tool will not revoke ownership permissions (only direct sharing)
-- **Audit Trail**: All operations are logged in detailed reports
-- **Dry Run**: Always test with dry run mode first in production environments
-- **Interactive Prompts**: Sensitive data is never hardcoded, always prompted
+- **Credentials Protection**: Never commit `credentials.json`, `token.json`, or service account keys
+- **Ownership Safety**: Cannot revoke owner permissions (prevents accidental data loss)
+- **Audit Trail**: All operations logged with structured JSON audit logs
+- **Dry Run First**: Always test with `--dry-run` in production
+- **Principle of Least Privilege**: Use appropriate scopes for authentication
+- **Value Objects**: Type-safe email and ID validation prevents injection attacks
 
 ## Troubleshooting
 
@@ -326,37 +421,57 @@ If you hit rate limits:
 
 ## Advanced Usage
 
-### Programmatic Usage
+## 🔧 Development
 
-You can also use the modules programmatically:
+### Architecture Overview
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed design documentation.
+
+**Key Design Patterns:**
+- Repository Pattern (Drive, Permission, Cache repositories)
+- Factory Pattern (Authentication service creation)
+- Strategy Pattern (Report formatters)
+- Builder Pattern (Request construction)
+- Observer Pattern (Progress reporting)
+- Dependency Injection (ServiceContainer)
+
+### Adding New Features
 
 ```python
-from auth import GoogleAPIAuthenticator
-from drive_scanner import DriveScanner
-from permission_manager import PermissionManager
+# Example: Adding a new report format
+from application.interfaces.services import IReportFormatter
 
-# Authenticate
-auth = GoogleAPIAuthenticator()
-drive_service = auth.get_drive_service()
+class HTMLReportFormatter(IReportFormatter):
+    def format(self, data: Dict[str, Any]) -> str:
+        # Implementation
+        pass
+    
+    def get_extension(self) -> str:
+        return 'html'
 
-# Scan Drive
-scanner = DriveScanner(drive_service)
-all_files = scanner.get_all_files()
-
-# Find shared files
-shared_files = scanner.get_files_shared_with_user('user@example.com')
-
-# Revoke access
-pm = PermissionManager(drive_service)
-results = pm.revoke_user_from_files(shared_files, 'user@example.com')
+# Register in ReportGenerator
+self._formatters[ReportFormat.HTML] = HTMLReportFormatter()
 ```
 
-## Limitations
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=. --cov-report=html
+
+# Run specific test suite
+pytest tests/unit/test_domain_entities.py
+```
+
+## 🚧 Known Limitations
 
 - Cannot revoke ownership permissions (by design for safety)
-- Requires admin-level Drive access
-- Rate limited by Google Drive API quotas
-- Does not handle Google Workspace shared drives differently (treats all as regular files)
+- Requires appropriate Drive API access scopes
+- Subject to Google Drive API rate limits (automatic throttling included)
+- Shared drives treated as regular files (no special handling yet)
 
 ## Contributing
 
@@ -399,14 +514,20 @@ For issues or questions:
 3. Check Google Drive API documentation
 4. Verify API status in Google Cloud Console
 
-## Roadmap
+## 🗺️ Roadmap
 
-- [ ] Support for Google Workspace Shared Drives
-- [ ] Bulk user offboarding from CSV
-- [ ] Integration with HRIS systems
+### v2.1 (Next Release)
+- [ ] Complete test suite with 80%+ coverage
+- [ ] Additional use cases (Audit-only, Report generation, Cache management)
+- [ ] Performance benchmarks and optimization
+
+### v3.0 (Future)
+- [ ] Google Workspace Shared Drives support
+- [ ] Bulk user operations from CSV
+- [ ] Web-based dashboard (FastAPI + React)
+- [ ] HRIS system integrations
 - [ ] Slack/Email notifications
-- [ ] Web-based dashboard
-- [ ] Scheduling and automation
+- [ ] Scheduled automation
 
 ## Acknowledgments
 
@@ -416,14 +537,24 @@ Built with:
 - [Colorama](https://github.com/tartley/colorama)
 - [tqdm](https://github.com/tqdm/tqdm)
 
-## Changelog
+## 📝 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
+
+### Version 2.0.0 (2024 - Current)
+**Complete Architecture Refactoring**
+- ✨ Clean Architecture with 4 layers (Domain, Application, Infrastructure, Presentation)
+- 🎨 7+ Design Patterns implemented
+- 🏗️ SOLID principles throughout
+- 🔒 Value Objects for type safety
+- 📊 Domain-Driven Design
+- 💉 Dependency Injection
+- 📝 Comprehensive audit logging
+- 📁 Proper project structure
 
 ### Version 1.0.0 (2024-10-14)
-- Initial release
-- Automated setup scripts for all platforms
-- Drive scanning functionality
-- Permission revocation with safety checks
-- Multi-format reporting (CSV, Excel, JSON)
-- Interactive CLI with colored output
-- Dry run mode
-- Comprehensive documentation
+- Initial monolithic implementation
+- Basic Drive scanning and permission revocation
+- Multi-format reporting
+- Cache management
+- Interactive CLI
